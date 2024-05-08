@@ -118,84 +118,153 @@
 # result = S.parser((lexemes, tokens))
 # print("Result:" + str(result))
 
-class SyntaxAnalyzer:
-    def __init__(self, parsing_table):
-        self.parsing_table = parsing_table
+# class SyntaxAnalyzer:
+#     def __init__(self, parsing_table):
+#         self.parsing_table = parsing_table
     
-    def parser(self, lexemes, tokens):
-        stack = ['$']
-        input_index = 0
-        output = ""
+#     def parser(self, lexemes, tokens):
+#         stack = ['$']
+#         input_index = 0
+#         output = ""
         
-        # Print tracing header
-        print("+------+--------------+---------------+----------------+--------------------+")
-        print("| STACK| INPUT\t| ACTION\t|")
-        print("+------+--------------+---------------+----------------+--------------------+")
+#         # Print tracing header
+#         print("+------+--------------+---------------+----------------+--------------------+")
+#         print("| STACK| INPUT\t| ACTION\t|")
+#         print("+------+--------------+---------------+----------------+--------------------+")
         
-        while True:
-            stack_top = stack[-1]
-            current_token = tokens[input_index] if input_index < len(tokens) else '$'
+#         while True:
+#             stack_top = stack[-1]
+#             current_token = tokens[input_index] if input_index < len(tokens) else '$'
             
-            # Print current stack and input
-            print("|", stack, "\t|", current_token, "\t|", end=" ")
+#             # Print current stack and input
+#             print("|", stack, "\t|", current_token, "\t|", end=" ")
             
-            # Check if we should reduce
-            if stack_top in self.parsing_table and current_token in self.parsing_table[stack_top]:
-                action = self.parsing_table[stack_top][current_token]
-                if action == 'accept':
-                    print("ACCEPT\t\t|")
-                    break
-                elif action.startswith('reduce'):
-                    production_rule = action.split()[1]
-                    num_to_pop = len(production_rule.split('->')[1].split())
-                    for _ in range(num_to_pop):
-                        stack.pop()
-                    stack_top = stack[-1]
-                    stack.append(production_rule.split('->')[0])
-                    output = self.perform_operation(production_rule.split('->')[0], output)
-                    print("REDUCE by", production_rule, "\t|")
-                    continue  # Skip shifting
-                else:
-                    print("ERROR\t\t|")
-                    break
-            # Shift operation
-            else:
-                if current_token != '$':  # Avoid adding '$' to stack
-                    stack.append(current_token)
-                input_index += 1
-                print("SHIFT\t\t|")
+#             # Check if we should reduce
+#             if stack_top in self.parsing_table and current_token in self.parsing_table[stack_top]:
+#                 action = self.parsing_table[stack_top][current_token]
+#                 if action == 'accept':
+#                     print("ACCEPT\t\t|")
+#                     break
+#                 elif action.startswith('reduce'):
+#                     production_rule = action.split()[1]
+#                     num_to_pop = len(production_rule.split('->')[1].split())
+#                     for _ in range(num_to_pop):
+#                         stack.pop()
+#                     stack_top = stack[-1]
+#                     stack.append(production_rule.split('->')[0])
+#                     output = self.perform_operation(production_rule.split('->')[0], output)
+#                     print("REDUCE by", production_rule, "\t|")
+#                     continue  # Skip shifting
+#                 else:
+#                     print("ERROR\t\t|")
+#                     break
+#             # Shift operation
+#             else:
+#                 if current_token != '$':  # Avoid adding '$' to stack
+#                     stack.append(current_token)
+#                 input_index += 1
+#                 print("SHIFT\t\t|")
         
-        return output
+#         return output
     
-    def perform_operation(self, operator, output):
-        if operator == 'E':
-            return output + "="
-        elif operator == '+':
-            return output + "+"
-        elif operator == '-':
-            return output + "-"
-        elif operator == '*':
-            return output + "*"
-        elif operator == '/':
-            return output + "/"
-        elif operator == 'N':
-            return output + "N"
-        else:
-            return output
+#     def perform_operation(self, operator, output):
+#         if operator == 'E':
+#             return output + "="
+#         elif operator == '+':
+#             return output + "+"
+#         elif operator == '-':
+#             return output + "-"
+#         elif operator == '*':
+#             return output + "*"
+#         elif operator == '/':
+#             return output + "/"
+#         elif operator == 'N':
+#             return output + "N"
+#         else:
+#             return output
 
-# Example usage:
-parsing_table = {
-    'E': {'N': 'E'},
-    'T': {'N': 'T'},
-    'N': {'N': 'N'},
-    '+': {'N': 'shift'},
-    '-': {'N': 'shift'},
-    '*': {'N': 'shift'},
-    '/': {'N': 'shift'},
-    '$': {'$': 'accept'},
-    'E\'': {'$': 'accept'}
-}
+# # Example usage:
+# parsing_table = {
+#     'E': {'N': 'E'},
+#     'T': {'N': 'T'},
+#     'N': {'N': 'N'},
+#     '+': {'N': 'shift'},
+#     '-': {'N': 'shift'},
+#     '*': {'N': 'shift'},
+#     '/': {'N': 'shift'},
+#     '$': {'$': 'accept'},
+#     'E\'': {'$': 'accept'}
+# }
 
-S = SyntaxAnalyzer(parsing_table)
-result = S.parser(['100', '-', '12', '/', '12', '$'], ['N', '-', 'N', '/', 'N', '$'])
+# S = SyntaxAnalyzer(parsing_table)
+# result = S.parser(['100', '-', '12', '/', '12', '$'], ['N', '-', 'N', '/', 'N', '$'])
+# print("Result:", result)
+
+
+class SimpleParser:
+    def __init__(self):
+        # This is a very simplified representation and does not directly correspond
+        # to a full parsing table, as typically used in shift-reduce parsing.
+        self.rules = {
+            'N': self.eval_number,
+            'T': self.eval_T,
+            'E': self.eval_E
+        }
+
+    def eval_number(self, stack):
+        return int(stack.pop())
+
+    def eval_T(self, stack):
+        right = stack.pop()
+        if not stack:  # Single number
+            return right
+        op = stack.pop()
+        left = stack.pop()
+        if op == '*':
+            return left * right
+        elif op == '/':
+            return left / right
+        else:  # Unexpected operator for T
+            raise ValueError("Unexpected operator for T: {}".format(op))
+
+    def eval_E(self, stack):
+        right = stack.pop()
+        if not stack:  # Single term
+            return right
+        op = stack.pop()
+        left = stack.pop()
+        if op == '+':
+            return left + right
+        elif op == '-':
+            return left - right
+        else:  # Unexpected operator for E
+            raise ValueError("Unexpected operator for E: {}".format(op))
+
+    def parser(self, input_tokens):
+        stack = []
+        for token in input_tokens:
+            if token in ['+', '-', '*', '/']:
+                stack.append(token)
+            else:  # Assume token is a number (N)
+                stack.append(self.rules['N']([token]))
+                # Here we would normally determine the next action (shift/reduce) based on the parsing table
+                # For simplicity, we just reduce if possible
+                while len(stack) >= 3 and stack[-2] in ['+', '-', '*', '/']:
+                    right = stack.pop()
+                    op = stack.pop()
+                    left = stack.pop()
+                    if op in ['*', '/']:
+                        stack.append(self.eval_T([left, op, right]))
+                    elif op in ['+', '-']:
+                        stack.append(self.eval_E([left, op, right]))
+        if len(stack) != 1:
+            raise ValueError("Parsing error, stack: {}".format(stack))
+        return stack[0]
+
+# Example usage
+lexemes = ['11', '-', '4', '/', '2']  # Example input
+tokens = ['N', '-', 'N', '/', 'N']  # Simplified token representation
+
+parser = SimpleParser()
+result = parser.parser(lexemes)  # Assuming lexemes are passed for simplicity
 print("Result:", result)
