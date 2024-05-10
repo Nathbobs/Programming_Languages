@@ -10,14 +10,15 @@ class SyntaxAnalyzer:
             char = expression[i]
 
             if char.isdigit():
-                current_lexeme += char
+                # If the character is a digit, append it to the current lexeme
+                current_lexeme += char # If the next character is also a digit, append it to the current lexeme
                 while i + 1 < n and expression[i + 1].isdigit():
                     current_lexeme += expression[i + 1]
                     i += 1
-                lexemes.append(current_lexeme)
+                lexemes.append(current_lexeme) # Append the current lexeme to the lexemes list and its token 'N' to the tokens list
                 tokens.append("N")
                 current_lexeme = ""
-
+            # If the character is an operator or parenthesis, append it to the lexemes and tokens lists
             elif char == "+":
                 lexemes.append(char)
                 tokens.append("+")
@@ -43,7 +44,7 @@ class SyntaxAnalyzer:
                 tokens.append(")")
 
             i += 1
-
+        # Append the end-of-input marker '$' to the lexemes and tokens lists
         lexemes.append("$")
         tokens.append("$")
 
